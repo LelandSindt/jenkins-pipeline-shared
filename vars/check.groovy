@@ -13,9 +13,11 @@ static def boolean isReleaseCandidate(branch) {
   return branch.contains('RC')
 }
 
+// The following functions require Script Approval
+// https://jenkins.io/doc/book/managing/script-approval/
+
 static def boolean skipPipeline(workingDirecory) {
   // if commitMessage contains 'skip pipeline' then true, else false
-  // https://jenkins.io/doc/book/managing/script-approval/
   def proc = "git -C ${workingDirecory} --no-pager log -1 --pretty=%B".execute()
   proc.waitFor()
   return proc.in.text.contains('skip pipeline')
