@@ -29,3 +29,10 @@ static def boolean skipDeploy(workingDirecory) {
   proc.waitFor()
   return proc.in.text.contains('skip deploy')
 }
+
+static def boolean skipBuild(workingDirecory) {
+  // if commitMessage contains 'skip build' then true, else false
+  def proc = "git -C ${workingDirecory} --no-pager log -1 --pretty=%B".execute()
+  proc.waitFor()
+  return proc.in.text.contains('skip build')
+}
