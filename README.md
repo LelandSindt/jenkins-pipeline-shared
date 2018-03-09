@@ -9,6 +9,21 @@ library identifier: 'toolslib@master', retriever: modernSCM(
    remote: 'https://github.com/GrowMon/jenkins-pipeline-shared.git'])
 ```
 
+## Usage in Declaritive Jenkinsfile 
+
+```
+environment{
+  skipPipeline = check.skipPipeline(this)
+}
+```
+-or-
+```
+when {
+  not { expression { check.skipPipeline(this) } }
+}
+```
+
+
 ## In-Process Script Approval
 To Pre-Approve elements that require Script Approval add the following elements to /var/jenkins_home/scriptApproval.xml
 ```

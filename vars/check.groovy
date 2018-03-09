@@ -16,23 +16,30 @@ static def boolean isReleaseCandidate(branch) {
 // The following functions require Script Approval
 // https://jenkins.io/doc/book/managing/script-approval/
 
-static def boolean skipPipeline(workingDirecory) {
+static def boolean skipPipeline(script) {
   // if commitMessage contains 'skip pipeline' then true, else false
-  def proc = "git -C ${workingDirecory} --no-pager log -1 --pretty=%B".execute()
-  proc.waitFor()
-  return proc.in.text.contains('skip pipeline')
+  return getLastCommitMessage(script).contains('skip pipeline')
 }
 
-static def boolean skipDeploy(workingDirecory) {
+static def boolean skipDeploy(script) {
   // if commitMessage contains 'skip deploy' then true, else false
-  def proc = "git -C ${workingDirecory} --no-pager log -1 --pretty=%B".execute()
-  proc.waitFor()
-  return proc.in.text.contains('skip deploy')
+  return getLastCommitMessage(script).contains('skip deploy')
 }
 
-static def boolean skipBuild(workingDirecory) {
+static def boolean skipBuild(script) {
   // if commitMessage contains 'skip build' then true, else false
-  def proc = "git -C ${workingDirecory} --no-pager log -1 --pretty=%B".execute()
+  return getLastCommitMessage(script).contains('skip build')
+}
+
+static def getLastCommitMessage(script) {
+  def command = ""
+  // if the build is taking place on the Manager
+  if (!script.env.SSH_CONNECTION) {
+    command = "git -C ${script.env.WORKSPACE} --no-pager log -1 --pretty=%B"
+  } else { // the build is taking place on a Worker via SSH...
+    command = "ssh -o StrictHostKeyChecking=no -p ${script.env.SSH_CONNECTION.split()[3]} ${script.env.SSH_CONNECTION.split()[2]} git -C ${script.env.WORKSPACE} --no-pager log -1 --pretty=%B"
+  }
+  def proc = command.execute()
   proc.waitFor()
-  return proc.in.text.contains('skip build')
+  return proc.in.text
 }
